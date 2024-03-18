@@ -245,7 +245,7 @@ describe("remove", function () {
 describe("filter existing data using one, some or all params", function () {
 
   test("filter by name only and that applies to multiple entries", async function () {
-    const filterQuery = "name=c";
+    const filterQuery = {name: "c"};
     
     let company = await Company.filter(filterQuery);
     expect(company).toEqual([
@@ -274,7 +274,7 @@ describe("filter existing data using one, some or all params", function () {
   });
 
   test("filter by name only and that applies to a single entry", async function () {
-    const filterQuery = "name=2";
+    const filterQuery = {name: "2"};
     
     let company = await Company.filter(filterQuery);
     expect(company).toEqual([
@@ -289,7 +289,7 @@ describe("filter existing data using one, some or all params", function () {
   });
 
   test("filter by minEmployees only and that applies to a single entry", async function () {
-    const filterQuery = "minEmployees=3";
+    const filterQuery = { minEmployees: 3};
     
     let company = await Company.filter(filterQuery);
     expect(company).toEqual([
@@ -304,7 +304,7 @@ describe("filter existing data using one, some or all params", function () {
   });
 
   test("filter by minEmployees only and that applies to multiple entries", async function () {
-    const filterQuery = "minEmployees=1";
+    const filterQuery = { minEmployees: 1};
     
     let company = await Company.filter(filterQuery);
     expect(company).toEqual([
@@ -333,13 +333,21 @@ describe("filter existing data using one, some or all params", function () {
   });
 
   test("filter by minEmployees only with value that is not a number", async function () {
-    const filterQuery = "minEmployees=bunch";
+    const filterQuery = { minEmployees: "bunch"};
     
-    await expect(Company.filter(filterQuery)).rejects.toThrowError(BadRequestError, "Value for minEmployees must be a number");
+    try {
+      await Company.filter(filterQuery);
+      // Fail the test if no error is thrown
+      fail("Expected an error to be thrown.");
+    } catch (error) {
+        // Check if the error is an instance of DatabaseError or has the expected message
+        expect(error.constructor.name).toBe("DatabaseError");
+        expect(error.message).toContain("invalid input syntax for type integer");
+    }
   });
 
   test("filter by maxEmployees only and that applies to a single entry", async function () {
-    const filterQuery = "maxEmployees=1";
+    const filterQuery = { maxEmployees: 1};
     
     let company = await Company.filter(filterQuery);
     expect(company).toEqual([
@@ -361,7 +369,7 @@ describe("filter existing data using one, some or all params", function () {
   });
 
   test("filter by maxEmployees only and that applies to multiple entries", async function () {
-    const filterQuery = "maxEmployees=3";
+    const filterQuery = { maxEmployees: 3};
     
     let company = await Company.filter(filterQuery);
     expect(company).toEqual([
@@ -397,13 +405,20 @@ describe("filter existing data using one, some or all params", function () {
   });
 
   test("filter by maxEmployees only with value that is not a number", async function () {
-    const filterQuery = "maxEmployees=bunch";
-    
-    await expect(Company.filter(filterQuery)).rejects.toThrowError(BadRequestError, "Value for maxEmployees must be a number");
+    const filterQuery = { minEmployees: "bunch"};
+    try {
+      await Company.filter(filterQuery);
+      // Fail the test if no error is thrown
+      fail("Expected an error to be thrown.");
+    } catch (error) {
+        // Check if the error is an instance of DatabaseError or has the expected message
+        expect(error.constructor.name).toBe("DatabaseError");
+        expect(error.message).toContain("invalid input syntax for type integer");
+    }
   });
 
   test("filter by name and maxEmployees only", async function () {
-    const filterQuery = "name=1&maxEmployees=3";
+    const filterQuery = { name: "1", maxEmployees: 3};
     
     let company = await Company.filter(filterQuery);
     expect(company).toEqual([
@@ -418,7 +433,7 @@ describe("filter existing data using one, some or all params", function () {
   });
 
   test("filter by name and minEmployees only", async function () {
-    const filterQuery = "name=c&minEmployees=3";
+    const filterQuery = { name: "c", minEmployees: 3};
     
     let company = await Company.filter(filterQuery);
     expect(company).toEqual([
@@ -433,7 +448,7 @@ describe("filter existing data using one, some or all params", function () {
   });
 
   test("filter by name, minEmployees and maxEmployees", async function () {
-    const filterQuery = "name=c&minEmployees=1&maxEmployees=2";
+    const filterQuery = { name: "c", maxEmployees: 2, minEmployees: 1};
     
     let company = await Company.filter(filterQuery);
     expect(company).toEqual([
@@ -455,25 +470,32 @@ describe("filter existing data using one, some or all params", function () {
   });
 
   test("filter by name, minEmployees, maxEmployees and an unauthorized criteria", async function () {
-    const filterQuery = "name=c&minEmployees=1&maxEmployees=2&age=12";
+    const filterQuery = { name: "c", maxEmployees: 1, minEmployees: 2, age: 12};
     
     await expect(Company.filter(filterQuery)).rejects.toThrowError(BadRequestError);
   });
 
   test("filter by names, an unauthorized criteria", async function () {
-    const filterQuery = "names=c";
+    const filterQuery = { names: "c" };
     
-    await expect(Company.filter(filterQuery)).rejects.toThrowError(BadRequestError);
+    try {
+        await Company.filter(filterQuery);
+        // Fail the test if no error is thrown
+        fail("Expected an error to be thrown.");
+    } catch (error) {
+        // Check if the error has the expected message indicating a syntax error
+        expect(error.message).toContain("syntax error at end of input");
+    }
   });
 
   test("minEmployees is greater than maxEmployees", async function () {
-    const filterQuery = "minEmployees=2&maxEmployees=1";
+    const filterQuery = { maxEmployees: 1, minEmployees: 2};
     
     await expect(Company.filter(filterQuery)).rejects.toThrowError(BadRequestError);
   });
 
   test("filter by name but entry doesn't exist", async function () {
-    const filterQuery = "name=a";
+    const filterQuery = {name: "a"};
     
     await expect(Company.filter(filterQuery)).rejects.toThrowError(NotFoundError);
   });

@@ -152,6 +152,12 @@ describe("GET /companies", function () {
     const response = await request(app).get("/companies?name=a");
     expect(response.body.error.message).toEqual("No companies found within the specified criteria.");
   });
+
+  test("bad request if invalid filter key", async function () {
+    const resp = await request(app)
+        .get("/companies?minEmployees=2&nope=nope");
+    expect(resp.statusCode).toEqual(400);
+  });
 });
 
 /************************************** GET /companies/:handle */
@@ -276,7 +282,7 @@ describe("PATCH /companies/:handle", function () {
 /************************************** DELETE /companies/:handle */
 
 describe("DELETE /companies/:handle", function () {
-  test("works for users", async function () {
+  test("works for admin", async function () {
     const resp = await request(app)
         .delete(`/companies/c1`)
         .set("authorization", `Bearer ${u4Token}`);

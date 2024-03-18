@@ -4,8 +4,8 @@ This is the Express backend for Jobly, version 2.
 
 To run this:
 
-    node server.js
+    npm start
     
 To run the tests:
 
-    jest -i
+    npm run test

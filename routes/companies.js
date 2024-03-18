@@ -12,6 +12,7 @@ const Company = require("../models/company");
 
 const companyNewSchema = require("../schemas/companyNew.json");
 const companyUpdateSchema = require("../schemas/companyUpdate.json");
+const companyFilter = require("../schemas/companyFilter.json");
 
 const router = new express.Router();
 
@@ -46,20 +47,29 @@ router.post("/", ensureIsAdmin, async function (req, res, next) {
  * Can filter on provided search filters:
  * - minEmployees
  * - maxEmployees
- * - nameLike (will find case-insensitive, partial matches)
+ * - name (will find case-insensitive, partial matches)
  *
  * Authorization required: none
  */
 
 router.get("/", async function (req, res, next) {
-  try {
-    const queryString = querystring.stringify(req.query);
+  const q = req.query;
+  // arrive as strings from querystring, but we want as ints
+  if (q.minEmployees !== undefined) q.minEmployees = +q.minEmployees;
+  if (q.maxEmployees !== undefined) q.maxEmployees = +q.maxEmployees;
 
-    if (req.path === '/' && !queryString) {
+  try {
+    const validator = jsonschema.validate(q, companyFilter);
+    if(!validator.valid) {
+      const errs = validator.errors.map(e => e.stack);
+      throw new BadRequestError(errs);
+    }
+
+    if (Object.keys(q).length === 0) {
       const companies = await Company.findAll();
       return res.json({ companies });
     } else {
-      const filteredCompanies = await Company.filter(queryString);
+      const filteredCompanies = await Company.filter(q);
       return res.json({ companies: filteredCompanies });
     }
   } catch (err) {

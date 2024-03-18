@@ -166,32 +166,16 @@ class Job {
    * When filtering by title, the match should be 
    * case-insensitive, meaning that "arc" value should 
    * be matched with the job "Architect".
-   * hasEquity: if true, filter to jobs that provide a 
-   * non-zero amount of equity. If false or not included 
-   * in the filtering, list all jobs regardless of equity.
+   * hasEquity: if present, filter to jobs that provide a 
+   * non-zero amount of equity.
    **/
 
   static async filter(criteria) {
-    const allowedCriteria = ['title', 'minSalary', 'hasEquity'];
-    const criteriaObj = {};
+    let criteriaObj = {};
     
     criteria.split("&").forEach((pair) => {
       const [key, value] = pair.split("=");
-      if (allowedCriteria.includes(key)) {
-         if (key === 'minSalary') {
-          const minSalaryValue = Number(value);
-          if (isNaN(minSalaryValue)) {
-            throw new BadRequestError(`Value for minSalary must be a number`);
-          }
-        } else if (key === 'hasEquity') {
-          if (value !== 'true' && value !== 'false') {
-            throw new BadRequestError(`Value for hasEquity must be either 'true' or 'false'`);
-          }
-        }
-        criteriaObj[key] = value;
-      } else {
-        throw new BadRequestError(`${key} is not a valid filter criteria. Only ${allowedCriteria.join(', ')} are allowed.`);
-      }
+      criteriaObj[key] = value;
     });    
 
     const { whereClause, values } = sqlForFilterJob(

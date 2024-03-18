@@ -319,12 +319,20 @@ describe("GET /jobs", function () {
     expect(jobs.companyHandle).toEqual(expectedJob.companyHandle);
 
     // Check for the number of entries
+    console.log(jobs);
     expect(jobs.jobs.length).toBe(1);
   });
 
   test("filter by a title that does not exist in db", async function () {
     const response = await request(app).get("/jobs?title=a");
     expect(response.body.error.message).toEqual("No jobs found within the specified criteria.");
+  });
+
+  test("bad request on invalid filter key", async function () {
+    const resp = await request(app)
+        .get(`/jobs`)
+        .query({ minSalary: 2, nope: "nope" });
+    expect(resp.statusCode).toEqual(400);
   });
 });
 

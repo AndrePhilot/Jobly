@@ -106,6 +106,7 @@ async function commonAfterAll() {
 
 
 const u1Token = createToken({ username: "u1", isAdmin: false });
+// Consider renaming this variable to adminToken
 const u4Token = createToken({ username: "u4", isAdmin: true });
 
 

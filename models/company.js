@@ -179,30 +179,8 @@ class Company {
    **/
 
   static async filter(criteria) {
-    const allowedCriteria = ['name', 'minEmployees', 'maxEmployees'];
-    const criteriaObj = {};
 
-    criteria.split("&").forEach((pair) => {
-      const [key, value] = pair.split("=");
-      if (allowedCriteria.includes(key)) {
-        if (key === 'minEmployees') {
-          const minEmployeesValue = Number(value);
-          if (isNaN(minEmployeesValue)) {
-            throw new BadRequestError(`Value for minEmployees must be a number`);
-          }
-        } else if (key === 'maxEmployees') {
-          const maxEmployeesValue = Number(value);
-          if (isNaN(maxEmployeesValue)) {
-            throw new BadRequestError(`Value for maxEmployees must be a number`);
-          }
-        }
-        criteriaObj[key] = value;
-      } else {
-        throw new BadRequestError(`${key} is not a valid filter criteria. Only ${allowedCriteria.join(', ')} are allowed.`);
-      }
-    });
-
-    const { minEmployees, maxEmployees } = criteriaObj;
+    const { minEmployees, maxEmployees } = criteria;
 
     if (minEmployees && maxEmployees) {
       if (minEmployees > maxEmployees) {
@@ -211,7 +189,7 @@ class Company {
     }
 
     const { whereClause, values } = sqlForFilterCompany(
-      criteriaObj);
+      criteria);
 
     const result = await db.query(
           `SELECT handle,
