@@ -56,7 +56,7 @@ class Job {
                   equity, 
                   company_handle AS "companyHandle"
            FROM jobs
-           ORDER BY id`);
+           ORDER BY title`);
     return jobsRes.rows;
   }
 
@@ -176,7 +176,7 @@ class Job {
     criteria.split("&").forEach((pair) => {
       const [key, value] = pair.split("=");
       criteriaObj[key] = value;
-    });    
+    });
 
     const { whereClause, values } = sqlForFilterJob(
       criteriaObj);
@@ -188,7 +188,8 @@ class Job {
                   equity,
                   company_handle AS "companyHandle"
            FROM jobs
-           ${whereClause}`,
+           ${whereClause}
+           ORDER BY title`,
         values);
 
     const jobs = result.rows;

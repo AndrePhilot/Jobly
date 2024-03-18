@@ -494,7 +494,7 @@ describe("filter existing data using one, some or all params", function () {
     }
   });
 
-  test("filter by hasEquity only with false value", async function () {
+  test("filter by hasEquity even though value is false", async function () {
     const filterQuery = "hasEquity=false";
     
     let job = await Job.filter(filterQuery);

@@ -319,7 +319,6 @@ describe("GET /jobs", function () {
     expect(jobs.companyHandle).toEqual(expectedJob.companyHandle);
 
     // Check for the number of entries
-    console.log(jobs);
     expect(jobs.jobs.length).toBe(1);
   });
 

@@ -21,7 +21,7 @@ function sqlForPartialUpdate(dataToUpdate, jsToSql) {
   
   return {
     setCols: cols.join(", "),
-    values: Object.values(dataToUpdate),
+    values: Object.values(dataToUpdate)
   };
 }
 
@@ -85,7 +85,7 @@ function sqlForFilterJob(dataToFilter) {
       conditions.push(`salary >= $${values.length + 1}`);
       values.push(dataToFilter[key]);
     } else if (key === 'hasEquity') {
-      if (dataToFilter[key] === true || dataToFilter[key] === 'true') {
+      if (dataToFilter[key] !== 'false' && dataToFilter[key] !== false) {
         conditions.push(`equity <> 0`);
       }
     }
@@ -96,6 +96,7 @@ function sqlForFilterJob(dataToFilter) {
     whereClause = 'WHERE ' + conditions.join(' AND ');
   }
 
+  console.log(whereClause, values);
   return {
     whereClause,
     values

@@ -54,6 +54,7 @@ router.post("/", ensureIsAdmin, async function (req, res, next) {
 
 router.get("/", async function (req, res, next) {
   const originalQuery = req.query;
+  const queryString = querystring.stringify(originalQuery);
   const q = req.query;
 
   // arrive as strings from querystring, but we want as int/bool
@@ -66,8 +67,6 @@ router.get("/", async function (req, res, next) {
       const errs = validator.errors.map(e => e.stack);
       throw new BadRequestError(errs);
     }
-
-    const queryString = querystring.stringify(originalQuery);
 
     if (req.path === '/' && !queryString) {
       const jobs = await Job.findAll();
